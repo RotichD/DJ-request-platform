@@ -1,14 +1,45 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
-}
 
 datasource db {
   provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  createdAt DateTime @default(now())
+  events    Event[]
+}
+
+model Event {
+  id        String    @id @default(cuid())
+  name      String
+  code      String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  requests  Request[]
+}
+
+model Request {
+  id        String        @id @default(cuid())
+  event     Event         @relation(fields: [eventId], references: [id])
+  eventId   String
+  title     String
+  artist    String
+  spotifyId String?
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+}
+
+enum RequestStatus {
+  PENDING
+  PLAYED
+  SKIPPED
 }
