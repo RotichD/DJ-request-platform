@@ -13,10 +13,12 @@ export async function GET() {
 export async function POST(req: Request) {
     const body = await req.json();
     const { name, code } = body;
+    const normalizedCode = 
+        typeof code === 'string' ? code.trim().toUpperCase() : '';
 
-    if (!name || !code) {
+    if (!name || !normalizedCode) {
         return NextResponse.json(
-            { error: 'Missing name or code' },
+            { error: 'Missing or invalid name or code' },
             { status: 400 }
         )
     }
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
         const event = await prisma.event.create({
             data: {
                 name,
-                code,
+                code: normalizedCode,
                 userId: DJ_USER_ID,
             },
         });
@@ -33,6 +35,12 @@ export async function POST(req: Request) {
         return NextResponse.json(event, { status: 201 });
 
     } catch (err: any) {
+        if (err.code === 'P2002') {
+            return NextResponse.json(
+                { error: 'Event code already exists', },
+                { status: 409 }
+            )
+        }
         return NextResponse.json(
             { error: 'Failed to create event' },
             { status: 500 }
