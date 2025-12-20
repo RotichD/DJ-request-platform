@@ -1,9 +1,9 @@
-datasource db {
-  provider = "postgresql"
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
 }
 
 model User {
@@ -21,20 +21,20 @@ model Event {
   code      String    @unique
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id])
   userId    String
+  user      User      @relation(fields: [userId], references: [id])
   requests  Request[]
 }
 
 model Request {
   id        String        @id @default(cuid())
-  event     Event         @relation(fields: [eventId], references: [id])
   eventId   String
   title     String
   artist    String
   spotifyId String?
   status    RequestStatus @default(PENDING)
   createdAt DateTime      @default(now())
+  event     Event         @relation(fields: [eventId], references: [id])
 }
 
 enum RequestStatus {
