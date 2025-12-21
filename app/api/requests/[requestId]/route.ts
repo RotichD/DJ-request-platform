@@ -18,7 +18,7 @@ export async function PATCH(
             );
         }
 
-        if (!status || !['PLAYED', 'SKIPPED'].includes(status)) {
+        if (!status || !['PENDING','PLAYED', 'SKIPPED'].includes(status)) {
             return NextResponse.json(
                 { error: 'Invalid status' },
                 { status: 400 }
