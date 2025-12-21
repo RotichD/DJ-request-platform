@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
+import { motion } from 'framer-motion';
+
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { EllipsisVerticalIcon, LinkIcon } from '@heroicons/react/20/solid';
 
@@ -142,19 +144,25 @@ export default function DjQueuePage() {
                     {!loading && requests.length === 0 && (
                         <p className='text-sm text-gray-400'>No requests yet.</p>
                     )}
-                    <ul role='list' className='divide-y divide-white/10'>
-                        {requests.map((req) => <li key={req.id} className='flex items-center justify-between gap-x-6 py-5'>
+                    <motion.ul role='list' className='divide-y divide-white/10'>
+                        {requests.map((req) => <motion.li layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2, ease: 'easeOut' }} key={req.id} className='flex items-center justify-between gap-x-6 py-5'>
                             <div className='min-w-0'>
                                 <div className='flex items-start gap-x-3'>
                                     <p className='text-sm/6 font-semibold dark:text-white'>{req.title} - {req.artist}</p>
-                                    <p className={`
+                                    <motion.p
+                                        layout
+                                        key={req.status}
+                                        initial={{ scale: 0.75, opacity: 0.6 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ duration: 0.25 }}
+                                        className={`
                                         mt-0.5 rounded-md px-1.5 py-0.5 text-xs font-medium
                                         ${req.status === 'PENDING' && 'bg-emerald-500/15 text-emerald-300 inset-ring inset-ring-emerald-500/20'}
                                         ${req.status === 'PLAYED' && 'bg-sky-500/15 text-sky-300 inset-ring inset-ring-sky-500/20'}
                                         ${req.status === 'SKIPPED' && 'bg-gray-500/15 text-gray-400 inset-ring inset-ring-gray-500/20'}
                                         `}>
                                         {req.status}
-                                    </p>
+                                    </motion.p>
                                 </div>
                                 <div className='mt-1 flex items-center gap-x-2 text-xs/5 text-gray-500 dark:text-gray-400'>
                                     <p className='whitespace-nowrap'>{formatTimeAgo(req.createdAt)}</p>
@@ -185,8 +193,8 @@ export default function DjQueuePage() {
                                     </MenuItems>
                                 </Menu>
                             </div>
-                        </li>)}
-                    </ul>
+                        </motion.li>)}
+                    </motion.ul>
                 </div>
             </div>
 
