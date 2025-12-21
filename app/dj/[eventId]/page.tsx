@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
-import { motion } from 'framer-motion';
+import { QRCodeCanvas } from 'qrcode.react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { EllipsisVerticalIcon, LinkIcon } from '@heroicons/react/20/solid';
@@ -15,8 +16,16 @@ export default function DjQueuePage() {
     const eventId = params.eventId as string;
     const [eventName, setEventName] = useState<string | null>(null);
 
+    const [showQr, setShowQr] = useState(false);
+    const [qrFullscreen, setQrFullscreen] = useState(false);
+
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const eventUrl =
+        typeof window !== 'undefined'
+            ? `${window.location.origin}/event/${eventId}`
+            : '';
 
     function formatTimeAgo(dateString: string) {
         const date = new Date(dateString);
@@ -123,6 +132,45 @@ export default function DjQueuePage() {
                 <h1 className='text-3xl font-semibold tracking-tight'>
                     DJ Queue
                 </h1>
+                <button onClick={() => setShowQr((v) => !v)} className="mt-4 inline-flex items-center rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20">
+                    {showQr ? 'Hide QR Code' : 'Show QR Code'}
+                </button>
+
+                <AnimatePresence>
+                    {showQr && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25, ease: 'easeOut' }}
+                            className="overflow-hidden"
+                        >
+                            <div className='mt-6 flex justify-center'>
+                                <div className='rounded-xl bg-white p-4'>
+                                    <QRCodeCanvas
+                                        value={eventUrl}
+                                        size={180}
+                                        bgColor='#ffffff'
+                                        fgColor='#000000'
+                                        level='M'
+                                        includeMargin
+                                    />
+                                </div>
+                            </div>
+                            <p className='mt-2 text-center text-sm text-white/70'>
+                                Scan to request a song
+                            </p>
+                            <button
+                                onClick={() => setQrFullscreen(true)}
+                                className="mt-3 text-sm text-indigo-400 hover:text-indigo-300"
+                            >
+                                Fullscreen QR
+                            </button>
+
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className='flex items-center justify-between mt-6'>
                     <div>
                         <h2 className='text-xl font-semibold tracking-tight text-white'>{eventName}</h2>
@@ -197,6 +245,35 @@ export default function DjQueuePage() {
                     </motion.ul>
                 </div>
             </div>
+
+            <AnimatePresence>
+                {qrFullscreen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+                    >
+                        <div className="text-center">
+                            <div className="mx-auto rounded-2xl bg-white p-6">
+                                <QRCodeCanvas value={eventUrl} size={320} />
+                            </div>
+
+                            <p className="mt-4 text-lg text-white">
+                                Scan to request a song
+                            </p>
+
+                            <button
+                                onClick={() => setQrFullscreen(false)}
+                                className="mt-6 rounded-md bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
 
         </div>
     )
