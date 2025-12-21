@@ -14,6 +14,7 @@ export async function GET(
             name: true,
             isActive: true,
             createdAt: true,
+            code: true,
         },
     });
 

@@ -15,6 +15,7 @@ export default function DjQueuePage() {
 
     const eventId = params.eventId as string;
     const [eventName, setEventName] = useState<string | null>(null);
+    const [eventCode, setEventCode] = useState<string | null>(null);
 
     const [showQr, setShowQr] = useState(false);
     const [qrFullscreen, setQrFullscreen] = useState(false);
@@ -88,6 +89,7 @@ export default function DjQueuePage() {
 
             const data = await res.json();
             setEventName(data.name);
+            setEventCode(data.code);
         }
 
         fetchEvent();
@@ -108,6 +110,8 @@ export default function DjQueuePage() {
                 fetchRequests(true);
             }
         }, 5000);
+
+        return () => clearInterval(interval);
     }, [eventId]);
 
     async function updateStatus(requestId: string, status: 'PLAYED' | 'SKIPPED' | 'PENDING') {
@@ -157,6 +161,14 @@ export default function DjQueuePage() {
                                     />
                                 </div>
                             </div>
+                            {eventCode && (
+                                <div className="mt-3 text-center">
+                                    <p className="text-sm text-white/60">Event Code</p>
+                                    <p className="mt-1 inline-block rounded-md bg-white/10 px-3 py-1 text-lg font-mono tracking-widest text-white">
+                                        {eventCode}
+                                    </p>
+                                </div>
+                            )}
                             <p className='mt-2 text-center text-sm text-white/70'>
                                 Scan to request a song
                             </p>
@@ -258,6 +270,15 @@ export default function DjQueuePage() {
                             <div className="mx-auto rounded-2xl bg-white p-6">
                                 <QRCodeCanvas value={eventUrl} size={320} />
                             </div>
+
+                            {eventCode && (
+                                <div className="mt-3 text-center">
+                                    <p className="text-sm text-white/60">Event Code</p>
+                                    <p className="mt-1 inline-block rounded-md bg-white/10 px-3 py-1 text-lg font-mono tracking-widest text-white">
+                                        {eventCode}
+                                    </p>
+                                </div>
+                            )}
 
                             <p className="mt-4 text-lg text-white">
                                 Scan to request a song
