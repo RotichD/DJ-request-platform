@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
 import Link from 'next/link';
 
 type Event = {
@@ -11,9 +13,12 @@ type Event = {
     createdAt: string;
 };
 
+
 export default function DjDashboardPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchEvents() {
@@ -32,9 +37,15 @@ export default function DjDashboardPage() {
         fetchEvents();
     }, []);
 
+    async function handleLogout() {
+        await supabase.auth.signOut();
+        router.replace('/login');
+    }
+
+
     return (
         <div className="min-h-screen bg-gray-950 px-6 py-10 text-white">
-            <div className="mx-auto max-w-3xl">
+            <div className="mx-auto max-w-3xl mb-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-semibold tracking-tight">
                         My Events
@@ -78,8 +89,8 @@ export default function DjDashboardPage() {
                                 <div className="flex items-center gap-3">
                                     <span
                                         className={`rounded-full px-2 py-1 text-xs ${event.isActive
-                                                ? 'bg-emerald-500/15 text-emerald-300'
-                                                : 'bg-gray-500/15 text-gray-400'
+                                            ? 'bg-emerald-500/15 text-emerald-300'
+                                            : 'bg-gray-500/15 text-gray-400'
                                             }`}
                                     >
                                         {event.isActive ? 'Live' : 'Ended'}
@@ -96,7 +107,17 @@ export default function DjDashboardPage() {
                         ))}
                     </ul>
                 </div>
+
+                <div className='flex'>
+                    <button
+                        onClick={handleLogout}
+                        className="rounded-md mt-8 ml-auto bg-red-400 px-4 py-2 text-sm font-medium hover:bg-indigo-500"
+                    >
+                        Logout
+                    </button>
+                </div>
             </div>
+
         </div>
     );
 }
