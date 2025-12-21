@@ -49,6 +49,24 @@ export default function EventPage() {
         setQueue(data);
     }
 
+    async function verifyCode() {
+        setError('');
+
+        const res = await fetch(`/api/events/${eventId}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            setError(data.error || 'Invalid code');
+            return;
+        }
+
+        setIsVerified(true);
+    }
+
     useEffect(() => {
         if (isVerified) fetchQueue();
     }, [isVerified]);
@@ -76,7 +94,7 @@ export default function EventPage() {
                                 placeholder='Enter event code'
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)} />
-                            <button className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500" onClick={() => setIsVerified(true)}>
+                            <button className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500" onClick={() => verifyCode()}>
                                 Continue
                             </button>
                         </div>
