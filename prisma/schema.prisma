@@ -7,12 +7,12 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?
-  createdAt DateTime @default(now())
-  events    Event[]
+  id         String   @id @default(cuid())
+  supabaseId String   @unique
+  email      String   @unique
+  name       String?
+  createdAt  DateTime @default(now())
+  events     Event[]
 }
 
 model Event {
@@ -31,7 +31,7 @@ model Request {
   eventId   String
   title     String
   artist    String
-  spotifyId String?
+  tidalId   String?
   status    RequestStatus @default(PENDING)
   createdAt DateTime      @default(now())
   event     Event         @relation(fields: [eventId], references: [id])
