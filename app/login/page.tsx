@@ -31,6 +31,7 @@ export default function LoginPage() {
             return;
         }
 
+        await fetch('/api/auth/sync', { method: 'POST' });
         router.replace('/dj');
     }
 

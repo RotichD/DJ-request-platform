@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-const DJ_USER_ID = 'dj1';
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function GET() {
     const events = await prisma.event.findMany({
@@ -13,7 +13,7 @@ export async function GET() {
 export async function POST(req: Request) {
     const body = await req.json();
     const { name, code } = body;
-    const normalizedCode = 
+    const normalizedCode =
         typeof code === 'string' ? code.trim().toUpperCase() : '';
 
     if (!name || !normalizedCode) {
@@ -22,13 +22,48 @@ export async function POST(req: Request) {
             { status: 400 }
         )
     }
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return cookieStore.get(name)?.value
+                },
+                set(name: string, value: string, options) {
+                    cookieStore.set({ name, value, ...options })
+                },
+                remove(name: string, options) {
+                    cookieStore.set({ name, value: '', ...options })
+                },
+            },
+        }
+    )
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const dbUser = await prisma.user.findUnique({
+        where: { supabaseId: user.id },
+    });
+
+    if (!dbUser) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
 
     try {
         const event = await prisma.event.create({
             data: {
                 name,
                 code: normalizedCode,
-                userId: DJ_USER_ID,
+                userId: dbUser.id,
             },
         });
 
